@@ -1,7 +1,0 @@
-title: My Documentation Site
-theme: minima
-# The following line is optional but helps if things don't show up
-header_pages:
-  - index.md
-  - gallery.md
-  - dillinger_sample.md
