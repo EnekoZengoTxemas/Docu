@@ -34,3 +34,5 @@ Ph_Level: Shows the acidity/alkalinity of the liquid.
 The water_plants database is a relational system exported as a JSON structure, designed to manage industrial water monitoring infrastructure and telemetry. It is organized into three primary tables that maintain data integrity through specific relational rules and hierarchical constraints.
 
 The foundation of the database is the sites table, which acts as a master registry for physical locations, uniquely identifying facilities like PLANT-EIBAR-01. Linked to this is the sensors table, which assigns specific hardware models to those sites, ensuring that every active sensor is tied to a valid plant location. Finally, the site_hourly_stats table serves as the primary data log, storing aggregated measurements for flow rate, pH levels, and pressure. This table follows a strict internal logic where the recorded minimum, average, and maximum values for each hour must maintain a consistent mathematical relationship to ensure statistical accuracy.
+
+![](images/MySql_DataBase.png)
