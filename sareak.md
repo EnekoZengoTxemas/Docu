@@ -12,7 +12,7 @@ Hasteko aurreko sare planoa hartu genuen. Ondoren aldaketak egin genituen behar 
 
 Ondoren ideia hori packetracer-en muntatu genuen ea funtzionatzen zuen ikusi ahal izateko. Lehendabizi L3 switch-a muntatzen ahisi ginen. 
 
-""1. Vlan-ak sortu
+## - Vlan-ak sortu
   -Switch-ean sartu eta bisualki Vlan-etarako interfazea sortu genituen.
    1. Vlan10=SISTEMAK(DHCP)
    2. Vlan20=LANGILEAK(DHCP)
@@ -20,4 +20,4 @@ Ondoren ideia hori packetracer-en muntatu genuen ea funtzionatzen zuen ikusi aha
    4. Vlan40=SISTEMAK
    5. Vlan60=OT
 
-""2. IP-ak ezarri
+## - IP-ak ezarri
