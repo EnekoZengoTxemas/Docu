@@ -9,6 +9,8 @@ title: Markatze Lengoaiak
 
 Hasteko MariaDB-tik atera dugun JSON-a XML-era pasa dugu orrialde baten bidez
 
+![https://jsonformatter.org/json-to-xml](images/JSON-XML.png)
+
 ---
 
 ## script.js
