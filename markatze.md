@@ -2,6 +2,7 @@
 layout: page
 title: Markatze Lengoaiak
 ---
+<div style="background-color: black; color: white; padding: 20px;">
 
 # Javascript
 
@@ -266,3 +267,5 @@ Azkenik Grafikoa egiteko kode hau erabili dugu.
     }
 
 ```
+
+</div>
