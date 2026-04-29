@@ -5,13 +5,20 @@ title: Markatze Lengoaiak
 
 # Javascript
 
-## XML
+## JSON-XML
 
 Hasteko MariaDB-tik atera dugun JSON-a XML-era pasa dugu orrialde baten bidez
 
 ![https://jsonformatter.org/json-to-xml](images/JSON-XML.png)
 
-**NOTE
+> **Note:** https://jsonformatter.org/json-to-xml.
+
+
+## XML Validator
+
+Aldaketa batzuk egin eta gero XML-a balidatu dugu Google Chrome-ekin irekitzen.
+
+![https://jsonformatter.org/json-to-xml](images/XML-Validator.png)
 
 ---
 
