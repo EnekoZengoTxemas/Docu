@@ -10,6 +10,8 @@ Hasteko aurreko sare planoa hartu genuen. Ondoren aldaketak egin genituen behar 
 
 ![Placeholder]([https://drive.google.com/file/d/1416pMdMYSkZhPpQH7G_4LUYH60aRW2Vz/view?usp=drive_link](https://drive.google.com/file/d/1LC28lcIU6rHy0pXaMzOxyCz902oIXurJ/view?usp=sharing))
 
+#Packetracer
+
 Ondoren ideia hori packetracer-en muntatu genuen ea funtzionatzen zuen ikusi ahal izateko. Lehendabizi L3 switch-a muntatzen ahisi ginen. 
 
 ## - Vlan-ak sortu
@@ -53,3 +55,13 @@ ipv6 dhcp pool dhcpipv6<br>
 address prefix 2600:1700:45c0:e210::/64<br>
 dns-server 2001:4860:4860::8888<br>
 exit<br>
+
+##VTP
+VTP egin ahal izateko beharrezko portuak trunk-ena jarri ditugu. Ondoren Swich printzipalean hurrengo kodeak jarri ditugu:<br>
+vtp domain MiRedLocal <br>
+vtp mode server<br>
+<br>
+Ondoren beste switch-etan klienteak izango direnak urrengoa sartu dugu:
+vtp domain MiRedLocal <br>
+vtp mode client<br>
+
