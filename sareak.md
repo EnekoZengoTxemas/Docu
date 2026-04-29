@@ -47,6 +47,9 @@ ip dhcp excluded-address 192.168.10.1 192.168.10.10<br>
 p dhcp excluded-address 192.168.10.254<br>
 network 192.168.10.0 255.255.255.0<br>
 default-router 192.168.10.1<br>
-exit<br>
+exit<br><br>
 -Vlan20<br>
-
+ipv6 dhcp pool dhcpipv6<br>
+address prefix 2600:1700:45c0:e210::/64<br>
+dns-server 2001:4860:4860::8888<br>
+exit<br>
