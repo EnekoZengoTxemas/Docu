@@ -41,3 +41,11 @@ Horretarako urrengo komandoak erabili genituen
 
 ## - DHCP
   Ondoren DHCP-a konfiguratu genuen Vlan 10 eta 20 rako
+      -Vlan10<br>
+      ip dhcp pool vlan10<br>
+ip dhcp excluded-address 192.168.10.1 192.168.10.10<br>
+p dhcp excluded-address 192.168.10.254<br>
+network 192.168.10.0 255.255.255.0<br>
+default-router 192.168.10.1<br>
+exit
+
