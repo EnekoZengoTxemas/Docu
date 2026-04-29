@@ -5,6 +5,16 @@ title: Markatze Lengoaiak
 
 # Javascript
 
+## XML
+
+Hasteko MariaDB-tik atera dugun JSON-a XML-era pasa dugu orrialde baten bidez
+
+![https://jsonformatter.org/json-to-xml](images/JSON-XML.png)
+
+**NOTE
+
+---
+
 ## script.js
 
 Hasteko javascript fitxategia aldatzen hasi ginen. Gure helburua zen xml batetik datuak dinamikoki jasotzea. Orduan hasierako var hauek guztiz kendu genituen eta hau gehitu genuen.
@@ -88,7 +98,164 @@ Kode hau for batekin datuak dituzten egunak array batean gordetzen ditu eta gero
 
 ---
 
+Botoiaren funtzionamendua ziurtatzeko funtzio hau sortu dugu.
 
+```javascript
+    function datuakBistaratu() {
+        var aukeratutakoLekua = $('#lekua-select').val();
+        var aukeratutakoEguna = $('#eguna-select').val();
+        var html = '';
 
+        if (UrPlantaDatuak.length === 0) {
+            $('#urplanta-edukiontzia').html('<p>Ez dago daturik kargatuta.</p>');
+            return;
+        }
 
+        var iragazitakoDatuak = [];
 
+        for (var i = 0; i < UrPlantaDatuak.length; i++) {
+            var neurketa = UrPlantaDatuak[i];
+
+            if (
+                neurketa.timestamp.startsWith(aukeratutakoEguna) &&
+                neurketa.location === aukeratutakoLekua
+            ) {
+                iragazitakoDatuak.push(neurketa);
+
+                var ordua = neurketa.timestamp.split(' ')[1].substring(0, 5);
+
+                var egoeraKlasea, egoeraTestua;
+                if (neurketa.flowMin < neurketa.flowAvg * 0.6) {
+                    egoeraKlasea = 'egoera-beroa';
+                    egoeraTestua = 'Ihesa';
+                } else if (neurketa.phAvg < 6.5 || neurketa.phAvg > 8.5) {
+                    egoeraKlasea = 'egoera-ertaina';
+                    egoeraTestua = 'pH Anomalia';
+                } else {
+                    egoeraKlasea = 'egoera-ona';
+                    egoeraTestua = 'Normala';
+                }
+
+                html +=
+                    '<div class="urplanta-txartela ' + egoeraKlasea + '">' +
+                    '<div class="txartel-goiburua">' +
+                    '<span class="ordua">' + ordua + '</span>' +
+                    '<span class="egoera-etiketa">' + egoeraTestua + '</span>' +
+                    '</div>' +
+                    '<div class="txartel-gorputza">' +
+                    '<div class="datua">' +
+                    '<span class="balioa">' + neurketa.flowAvg.toFixed(2) + '</span>' +
+                    '<span class="unitatea">Emaria avg (L/min)</span>' +
+                    '</div>' +
+                    '<div class="datua-minmax">' +
+                    '<span class="minmax">↓ ' + neurketa.flowMin.toFixed(2) + '</span>' +
+                    '<span class="minmax">↑ ' + neurketa.flowMax.toFixed(2) + '</span>' +
+                    '</div>' +
+                    '<div class="datua">' +
+                    '<span class="balioa">' + neurketa.pressAvg.toFixed(2) + '</span>' +
+                    '<span class="unitatea">Presioa avg (bar)</span>' +
+                    '</div>' +
+                    '<div class="datua-minmax">' +
+                    '<span class="minmax">↓ ' + neurketa.pressMin.toFixed(2) + '</span>' +
+                    '<span class="minmax">↑ ' + neurketa.pressMax.toFixed(2) + '</span>' +
+                    '</div>' +
+                    '<div class="datua">' +
+                    '<span class="balioa">' + neurketa.phAvg.toFixed(2) + '</span>' +
+                    '<span class="unitatea">pH avg</span>' +
+                    '</div>' +
+                    '<div class="datua-minmax">' +
+                    '<span class="minmax">↓ ' + neurketa.phMin.toFixed(2) + '</span>' +
+                    '<span class="minmax">↑ ' + neurketa.phMax.toFixed(2) + '</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+            }
+        }
+
+        if (iragazitakoDatuak.length === 0) {
+            html = '<p>Ez dago daturik aukeratutako leku eta egunarekin.</p>';
+        }
+
+        $('#urplanta-edukiontzia').html(html);
+
+        if (iragazitakoDatuak.length > 0) {
+            var avgFlow = iragazitakoDatuak.reduce(function (s, d) { return s + d.flowAvg; }, 0) / iragazitakoDatuak.length;
+            var avgPres = iragazitakoDatuak.reduce(function (s, d) { return s + d.pressAvg; }, 0) / iragazitakoDatuak.length;
+            var avgPh = iragazitakoDatuak.reduce(function (s, d) { return s + d.phAvg; }, 0) / iragazitakoDatuak.length;
+            $('#avgTemp').text(avgFlow.toFixed(2));
+            $('#avgHum').text(avgPres.toFixed(2));
+            $('#avgPh').text(avgPh.toFixed(2));
+            $('#total').text(iragazitakoDatuak.length);
+        } else {
+            $('#avgTemp').text('—');
+            $('#avgHum').text('—');
+            $('#avgPh').text('—');
+            $('#total').text(0);
+        }
+
+        grafikoaEguneratu(iragazitakoDatuak);
+    }
+
+```
+
+Funtzio hau bilatzeko botoiari emandakoan zein egun eta zein planta aukeratu den jasotzen du. Eguna eta planta berdina duten datuak array batean sartzen ditu. Daturik ez badago errore hori azalduko da. Jarraian datuak div-etan sailkatzen ditu. Azkenik 2 if jarri ditugu grafikoa behar dituen datuak jasotzeko, eta horiekin batezbestekoa minimoa eta maximoa kalkulatuzeko erabiliko dira.
+
+---
+
+Azkenik Grafikoa egiteko kode hau erabili dugu.
+
+```javascript
+
+    function grafikoaEguneratu(datuak) {
+        var ctx = document.getElementById('urplanta-grafikoa').getContext('2d');
+
+        if (UrPlantaGrafikoa !== null) {
+            UrPlantaGrafikoa.destroy();
+        }
+
+        var etiketak = datuak.map(function (d) { return d.timestamp.split(' ')[1].substring(0, 5); });
+        var flowDatuak = datuak.map(function (d) { return d.flowAvg; });
+        var presDatuak = datuak.map(function (d) { return d.pressAvg * 10; });
+        var phDatuak = datuak.map(function (d) { return d.phAvg * 10; });
+
+        UrPlantaGrafikoa = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: etiketak,
+                datasets: [
+                    {
+                        label: 'Emaria avg (L/min)',
+                        data: flowDatuak,
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Presioa avg (bar) *10',
+                        data: presDatuak,
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'pH avg *10',
+                        data: phDatuak,
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: false }
+                }
+            }
+        });
+    }
+
+```
