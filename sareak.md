@@ -26,9 +26,9 @@ Horretarako urrengo komandoak erabili genituen
  ip address 10.1.10.1 255.255.255.0
 
 2. interface vlan 20
-     ipv6 enable$
-     ipv6 address 2600:1700:45c0:e210::/64$
-     no shutdown$
+    $ ipv6 enable$
+    $ ipv6 address 2600:1700:45c0:e210::/64$
+    $ no shutdown$
 
 4. interface vlan 30
  ip address 192.168.30.2 255.255.255.0
