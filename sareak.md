@@ -4,13 +4,13 @@ title: Sareak
 ---
 
 
-# Sare Planoa
+#1. Sare Planoa
 
 Hasteko aurreko sare planoa hartu genuen. Ondoren aldaketak egin genituen behar genuen guuztia asetu ahal izateko. Sare ia guztia Vlan-etan bihurtu eta swictch-ak jarriz. Horrela geratu zen.
 
 ![Placeholder]([https://drive.google.com/file/d/1416pMdMYSkZhPpQH7G_4LUYH60aRW2Vz/view?usp=drive_link](https://drive.google.com/file/d/1LC28lcIU6rHy0pXaMzOxyCz902oIXurJ/view?usp=sharing))
 
-#Packetracer
+#2. Packetracer
 
 Ondoren ideia hori packetracer-en muntatu genuen ea funtzionatzen zuen ikusi ahal izateko. Lehendabizi L3 switch-a muntatzen ahisi ginen. 
 
@@ -61,7 +61,14 @@ VTP egin ahal izateko beharrezko portuak trunk-ena jarri ditugu. Ondoren Swich p
 vtp domain MiRedLocal <br>
 vtp mode server<br>
 <br>
+
 Ondoren beste switch-etan klienteak izango direnak urrengoa sartu dugu:<br>
 vtp domain MiRedLocal <br>
 vtp mode client<br>
 
+
+## - Amaitzeko
+
+Amaitzeko beharrezko ruta jarri dugu l3-an eta Router bat instalatu dugu Vlan10-ean. L3ko rutak horra ematen digu eta ruterren beste ruta bat jarri dugu ez duen ezagutzen sarea l3-ra eramareko.
+
+# 3. Sare Planoa eguneratu
