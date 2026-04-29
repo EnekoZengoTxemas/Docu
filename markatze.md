@@ -53,9 +53,7 @@ Hasteko javascript fitxategia aldatzen hasi ginen. Gure helburua zen xml batetik
 
 Kode hau xml-tik ajax erabiliz datuak dinamikoki jasotzen ditu. Datu horiek array batzuetan gordetzeko kode hau erabili dut. For erabili beharrean .each erabili dut, hau da, erregistro bakoitzean UrPlantaDatuak array-a timestamp, site, sensor... gordeko ditu.
 
-
-
-
+---
 
 Gero Kontrol-Panelean filtratzeko kode hau erabili dugu:
 
@@ -85,5 +83,12 @@ Gero Kontrol-Panelean filtratzeko kode hau erabili dugu:
             $('#bistaratu-btn').prop('disabled', false).text('Bistaratu');
         }
 ```
+
+Kode hau for batekin datuak dituzten egunak array batean gordetzen ditu eta gero aukera bezala erakusten ditu. Lekuekin berdina egiten du.
+
+---
+
+
+
 
 
