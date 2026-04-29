@@ -26,7 +26,7 @@ Pressure_bar:  Shows how much pressure there is in the system.
 Ph_Level: Shows the acidity/alkalinity of the liquid.
 
 
-![](images/MySql_DataBase.png)
+![](images/DataBase_MongoDB.png)
 
 
 
