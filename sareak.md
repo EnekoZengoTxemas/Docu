@@ -56,7 +56,7 @@ address prefix 2600:1700:45c0:e210::/64<br>
 dns-server 2001:4860:4860::8888<br>
 exit<br>
 
-##VTP
+## - VTP
 VTP egin ahal izateko beharrezko portuak trunk-ena jarri ditugu. Ondoren Swich printzipalean hurrengo kodeak jarri ditugu:<br>
 vtp domain MiRedLocal <br>
 vtp mode server<br>
