@@ -22,7 +22,7 @@ Ondoren ideia hori packetracer-en muntatu genuen ea funtzionatzen zuen ikusi aha
 
 ## - IP-ak ezarri
 Horretarako urrengo komandoak erabili genituen 
-1. interface vlan 10
+1. interface vlan 10<br>
  ip address 10.1.10.1 255.255.255.0
 
 2. interface vlan 20
@@ -30,13 +30,13 @@ Horretarako urrengo komandoak erabili genituen
    ipv6 address 2600:1700:45c0:e210::/64<br>
    no shutdown<br>
 
-4. interface vlan 30
+4. interface vlan 30<br>
  ip address 192.168.30.2 255.255.255.0
 
-5. interface vlan 40
+5. interface vlan 40<br>
  ip address 192.168.40.1 255.255.255.0
 
-6. interface vlan 60
+6. interface vlan 60<br>
  ip address 192.168.60.1 255.255.255.
 
 ## - DHCP
