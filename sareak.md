@@ -61,7 +61,7 @@ VTP egin ahal izateko beharrezko portuak trunk-ena jarri ditugu. Ondoren Swich p
 vtp domain MiRedLocal <br>
 vtp mode server<br>
 <br>
-Ondoren beste switch-etan klienteak izango direnak urrengoa sartu dugu:
+Ondoren beste switch-etan klienteak izango direnak urrengoa sartu dugu:<br>
 vtp domain MiRedLocal <br>
 vtp mode client<br>
 
