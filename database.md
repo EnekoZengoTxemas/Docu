@@ -26,7 +26,7 @@ Pressure_bar:  Shows how much pressure there is in the system.
 Ph_Level: Shows the acidity/alkalinity of the liquid.
 
 
-![Alt text: A description of the image](images/Captura de pantalla 2026-04-29 220714.png)
+![Alt text: A description of the image](images/Captura de pantalla 2026-04-29 220714.jpg)
 
 
 ## Relational database data(MariaDB):
