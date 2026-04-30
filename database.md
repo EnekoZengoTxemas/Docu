@@ -92,5 +92,223 @@ db.data.aggregate([
 
 
 ## 5 more query-s:
+ **1. Presio altuko alertak (\> 5,5 bar) gune zehatzetan**
+
+    db.data.aggregate(\[  
+    {   
+    $match: {   
+      pressure\_bar: { $gt: 5.5 }   
+    }   
+    },  
+    {   
+    $group: {   
+      \_id: {   
+        site: "$siteId",   
+        sensor: "$sensorId"   
+      },   
+      alertas: { $sum: 1 }   
+    }   
+    }  
+    \])
+
+
+
+**2. pH balio arriskutsuak bakarrik bilatu**
+
+    db.data.aggregate(\[  
+    {  
+    $match: {  
+      $or: \[  
+        { phLevel: { $lt: 7.0 } },  
+        { phLevel: { $gt: 7.5 } }  
+      \]  
+    }  
+    },  
+    {  
+    $project: {  
+      \_id: 0,  
+      timestamp: 1,  
+      siteId: 1,  
+      phLevel: 1,  
+      alerta: { $literal: "CHECK\_CHEMICALS" }  
+    }  
+    }  
+    \])  
+
+
+**3. Erregistratutako 5 fluxu handienak** 
+
+    db.data.aggregate(\[  
+    { $sort: { flowRate\_Lpm: \-1 } },  
+    { $limit: 5 },  
+    {  
+    $project: {  
+      \_id: 0,  
+      siteId: 1,  
+      sensorId: 1,  
+      Max\_flowRate: "$flowRate\_Lpm",  
+       
+    }  
+    }  
+    \])  
+
+
+**4.PhLevel eta Pressure Bar txikiena duten 5 erregistro**
+
+    db.data.aggregate(\[  
+    {   
+    $sort: {   
+      phLevel: 1,   
+      pressure\_bar: 1   
+    }   
+    },  
+    { $limit: 5 },  
+    {  
+    $project: {  
+      \_id: 0,  
+      siteId: 1,  
+      sensorId: 1,  
+      Min\_phLevel: "$phLevel",  
+      Min\_pressurebar: "$pressure\_bar"  
+    }  
+    }  
+    \])  
+
+
+** 5.Sensor bakoitzean egon diren alerta kopurua**
+
+    db.data.aggregate(\[  
+    { $match: { status: "LEAK\_DETECTED" } },  
+    {  
+    $group: {  
+      \_id: "$sensorId",  
+      total\_fugas: { $sum: 1 }  
+    }  
+    }  
+    \])  
+### Script to Connect MongoDB with MySQL and send information to MySQL:
+```JavaScript```
+const { MongoClient } = require('mongodb');
+const mysql = require('mysql2/promise');
+
+    async function main() {
+    const mongoUri = "mongodb://localhost:27017";
+    const mongoClient = new MongoClient(mongoUri);
+
+    const mysqlConfig = {
+        host: 'localhost',
+        user: 'root',
+        password: 'Admin123',
+        database: 'water_plants'
+    };
+
+    try {
+        await mongoClient.connect();
+        const connection = await mysql.createConnection(mysqlConfig);
+        console.log(" Conexión establecida.");
+
+        // --- LÓGICA PARA FILTRAR LA ÚLTIMA HORA COMPLETA ---
+        const ahora = new Date();
+        console.log(ahora);
+        
+        // Inicio: Hora anterior, minuto 00:00 (ej: 11:00:00)
+        const fechaInicio = new Date(ahora);
+        fechaInicio.setHours(ahora.getHours() - 1, 0, 0, 0);
+
+        // Fin: Hora anterior, minuto 59:59 (ej: 11:59:59)
+        const fechaFinal = new Date(ahora);
+        fechaFinal.setHours(ahora.getHours() - 1, 59, 59, 999);
+
+        console.log(`Buscando datos entre: ${fechaInicio.toLocaleString()} y ${fechaFinal.toLocaleString()}`);
+        // --------------------------------------------------
+
+
+        const database = mongoClient.db('water_plant');
+        const collection = database.collection('data');
+
+        const pipeline = [
+            
+             {
+                $match: {
+                    rango_horario: {
+                        $gte: fechaInicio,
+                        $lte: fechaFinal
+                    }
+                }
+            },
+            {
+
+                
+                $group: {
+                    _id: {
+                        siteId: "$siteId",
+                        fechaHora: { $dateToString: { format: "%Y-%m-%d %H:00:00", date: "$timestamp" } }
+                    },
+                    avgFlow: { $avg: "$flowRate_Lpm" },
+                    avgPh: { $avg: "$phLevel" },
+                    avgPressure: { $avg: "$pressure_bar" },
+                    minFlow: { $min: "$flowRate_Lpm" },
+                    maxFlow: { $max: "$flowRate_Lpm" },
+                    minPh: { $min: "$phLevel" },
+                    maxPh: { $max: "$phLevel" },
+                    minPre: { $min: "$pressure_bar" },
+                    maxPre: { $max: "$pressure_bar" }
+                }
+            },
+            { 
+                $sort: { 
+                    "_id.fechaHora": -1, 
+                    "_id.siteId": 1 
+                } 
+            }
+        ];
+
+        const results = await collection.aggregate(pipeline).toArray();
+
+        for (const doc of results) {
+            const { siteId, fechaHora } = doc._id;
+
+            await connection.query(
+                'INSERT IGNORE INTO sites (site_id) VALUES (?)', 
+                [siteId]
+            );
+
+            const sqlStats = `
+                INSERT INTO site_hourly_stats 
+                (rango_horario, site_id, flow_avg, flow_min, flow_max, ph_avg, ph_min, ph_max, pressure_avg, pressure_min, pressure_max) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                    flow_avg = VALUES(flow_avg),
+                    ph_avg = VALUES(ph_avg),
+                    pressure_avg = VALUES(pressure_avg)
+            `;
+
+            await connection.query(sqlStats, [
+                fechaHora,       
+                siteId,          
+                doc.avgFlow ? doc.avgFlow.toFixed(2) : 0, 
+                doc.minFlow, 
+                doc.maxFlow,
+                doc.avgPh ? doc.avgPh.toFixed(2) : 0, 
+                doc.minPh, 
+                doc.maxPh,
+                doc.avgPressure ? doc.avgPressure.toFixed(2) : 0, 
+                doc.minPre, 
+                doc.maxPre
+            ]);
+        }
+
+        console.log(` Success: They have synchronized ${results.length} .`);
+        
+        await connection.end();
+
+    } catch (error) {
+        console.error(" Error during execution:", error);
+    } finally {
+        await mongoClient.close();
+    }
+    }
+
+    main().catch(console.error);
 
 
