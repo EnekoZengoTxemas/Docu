@@ -187,7 +187,7 @@ db.data.aggregate([
     }  
     \])  
 ### Script to Connect MongoDB with MySQL and send information to MySQL:
-```JavaScript```
+```JavaScript
 const { MongoClient } = require('mongodb');
 const mysql = require('mysql2/promise');
 
@@ -310,5 +310,23 @@ const mysql = require('mysql2/promise');
     }
 
     main().catch(console.error);
+```
+
+1.  Data Distillation
+This script acts as a bridge between two different database worlds. It takes "noisy," high-frequency sensor data from MongoDB (NoSQL) and converts it into a clean, structured format for MySQL (Relational). The main goal is to turn thousands of raw logs into a single, easy-to-read summary for every hour.
+
+2. The Technical Process
+Filtering: The script dynamically calculates the "previous hour" (e.g., 10:00:00 to 10:59:59) so it only processes a specific slice of time.
+
+Aggregation: Using MongoDB's aggregation engine, it calculates the Average, Minimum, and Maximum for flow, pH, and pressure.
+
+Refinement: It rounds long decimal numbers to two places and formats the timestamps into a standardized string (YYYY-MM-DD HH:00:00).
+
+3. Safe Synchronization
+Finally, the script moves the results to MySQL with two "fail-safes":
+
+Site Management: It checks if the site exists in the master list; if not, it adds it automatically.
+
+The Upsert: It uses a "duplicate key update" logic. If the script runs twice for the same hour, it won't create an error or a double entry; it simply updates the existing record with the most recent data.
 
 
