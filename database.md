@@ -340,7 +340,15 @@ By moving your MongoDB setup from a localized Docker container to a networked Re
 
 Furthermore, by enabling external connectivity for tools like Compass, you have established a centralized data hub capable of remote administration and cross-machine integration. This allows for real-world testing of security protocols, such as Role-Based Access Control (RBAC) and network latency, which are often ignored in isolated labs. Essentially, you have used this cluster to build a secure, scalable, and observable database service that can support external applications while providing deep insights into the system's live performance and health.
 
-![](images/Cluster.jpg)
+![](images/Cluster.png)
+
+
+### Strategy to save information:
+We used Task Scheduler to automate our scripts and ensure the system runs efficiently. The MySQL script runs every hour with two goals: it audits historical records to fix errors or fill missing data, and it dynamically updates the current day's information. This strategy guarantees data integrity and keeps the website functional using JSON backups if the main database goes offline.
+
+In contrast, the MongoDB script is scheduled daily at 12:30 AM. Because MongoDB stores raw, non-summarized data, it handles a much higher volume of records than MySQL. We set this to a daily frequency to optimize system performance and avoid unnecessary processing load.
+
+
 
 
 
