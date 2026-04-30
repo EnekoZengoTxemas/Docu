@@ -349,6 +349,10 @@ We used Task Scheduler to automate our scripts and ensure the system runs effici
 In contrast, the MongoDB script is scheduled daily at 12:30 AM. Because MongoDB stores raw, non-summarized data, it handles a much higher volume of records than MySQL. We set this to a daily frequency to optimize system performance and avoid unnecessary processing load.
 
 
+![](images/Automatizacion.png)
+
+
+
 
 
 
