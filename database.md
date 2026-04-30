@@ -38,22 +38,23 @@ The foundation of the database is the sites table, which acts as a master regist
 ![](images/MySql_DataBase.png)
 
 
-#Data abstraction from a non-relational database to a relational database:
+# Data abstraction from a non-relational database to a relational database:
 
-##Query for MongoDB:
+## Query for MongoDB:
 db.data.aggregate([
   {
-    //1. Filter the whole last hour.
+    //1. The first step is the $match stage, which acts as a filter. Instead of scanning your entire database, it looks specifically at the timestamp field to find records that fall within the previous hour. It uses JavaScript dates to automatically calculate the start and end of that hour (for example, from 10:00:00 to 10:59:59). This ensures that the rest of the operation only processes relevant, recent data, which makes the query much faster and more efficient.
+    
     $match: {
       timestamp: {
         $gte: new Date(new Date().setHours(new Date().getHours() - 1, 0, 0, 0)),
         $lte: new Date(new Date().setHours(new Date().getHours() - 1, 59, 59, 999))
       }
-    }
-  },
-  {
-    //2. Grouping and calculating statistics
-    $group: {
+    }},
+    
+  //2. The second step is the $group stage, where the actual "number crunching" happens. MongoDB organizes the filtered documents into "buckets" based on a unique combination of the siteId and the hour of the reading. While grouped, the database calculates several statistics at once: it finds the average, minimum, and maximum values for the water flow, the pH levels, and the pressure. By using the $dateTrunc operator, it ensures that all individual readings taken at different minutes are lumped together into a single hourly summary for each site.
+    
+    {$group: {
       _id: {
         siteId: "$siteId",
         rango_horario: { $dateTrunc: { date: "$timestamp", unit: "hour" } }
@@ -67,11 +68,12 @@ db.data.aggregate([
       pressure_avg: { $avg: "$pressure_bar" },
       pressure_min: { $min: "$pressure_bar" },
       pressure_max: { $max: "$pressure_bar" }
-    }
-  },
-  {
-  //3. Project and round areas (equivalent to ToFix (2))
-    $project: {
+    }},
+  
+  
+  //3. The final step is the $project stage, which is all about presentation and cleanup. After the grouping stage, the data structure can be a bit clunky, so this part renames fields to make them easier to read—like pulling the site ID out of the grouping object and making it a top-level field. Crucially, it also applies the $round operator to the average values. This prevents you from getting long, messy decimals (like 7.123456...) and instead rounds them to two decimal places, making the final output ready for a clean user interface or a report.  
+    
+    {$project: {
       _id: 0,
       site_id: "$_id.siteId",
       rango_horario: "$_id.rango_horario",
@@ -84,7 +86,7 @@ db.data.aggregate([
       pressure_avg: { $round: ["$pressure_avg", 2] },
       pressure_min: 1,
       pressure_max: 1
-    }
-  }
-])
+    }}])
+
+  This query will be run every hour, because 
 
