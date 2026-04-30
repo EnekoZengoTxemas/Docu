@@ -340,6 +340,8 @@ By moving your MongoDB setup from a localized Docker container to a networked Re
 
 Furthermore, by enabling external connectivity for tools like Compass, you have established a centralized data hub capable of remote administration and cross-machine integration. This allows for real-world testing of security protocols, such as Role-Based Access Control (RBAC) and network latency, which are often ignored in isolated labs. Essentially, you have used this cluster to build a secure, scalable, and observable database service that can support external applications while providing deep insights into the system's live performance and health.
 
+![](images/Cluster.jpg)
+
 
 
 
