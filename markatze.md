@@ -2,7 +2,8 @@
 layout: page
 title: Markatze Lengoaiak
 ---
-<div style="background-color: black; color: white; padding: 20px;">
+
+https://drive.google.com/drive/folders/1Im_y0d_gcEk5jsz_BHjHGGqcr0iq0QZG?usp=drive_link
 
 # Javascript
 
@@ -268,4 +269,47 @@ Azkenik Grafikoa egiteko kode hau erabili dugu.
 
 ```
 
-</div>
+---
+
+
+# OpenData
+
+Kode hau opendataren karpetan dauden .json fitxategiak ikusten ditu eta zerrenda batean jartzen ditu. Deskargatzeko botoia ere txertatzen du
+
+```javascript 
+
+document.addEventListener('DOMContentLoaded', function () {
+    var edukiontzia = document.getElementById('opendata-edukiontzia');
+
+    // Fetch the directory index from the server
+    fetch('data/opendata/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(htmlText => {
+            var links = new DOMParser().parseFromString(htmlText, 'text/html').querySelectorAll('a');
+
+            var html = "<ul>";
+
+            for (var i = 0; i < links.length; i = i + 1) {
+                var fitxategiIzena = links[i].getAttribute('href');
+                if (fitxategiIzena && fitxategiIzena.endsWith('.json')) {
+                    var izena = fitxategiIzena.split('/').pop();
+                    html += `<li>${izena} <a href="${fitxategiIzena}" download class="deskarga-botoia">
+                                DESKARGATU
+                            </a></li>`;
+                }
+}
+            html += "</ul>";
+
+            if (edukiontzia) {
+                edukiontzia.innerHTML = html;
+            }
+        });
+});
+
+```
+
