@@ -3,6 +3,30 @@ layout: page
 title: Digi
 ---
 
+Datuen balioa eta monitorizazioa
+Guretzat, datuak uraren kalitatea bezain esentzialak dira. Langileen erosotasuna eta ongizatea bermatzeko, ingurune-baldintzak (tenperatura eta hezetasuna) etengabe neurtzen ditugu, instalazioetan segurtasun eta erosotasun maila optimoak mantentzeko.
+
+Konfidentzialtasuna: Informazio hau barne-erabilerarako besterik ez da. Egoitza bakoitzeko langileek soilik daukate sarbidea, lan-inguruneko parametro espezifikoak direla ziurtatuz eta kanpoko esku-hartzeetatik babestuz.
+
+Osotasuna: Gure sentsoreek jasotako datuak bakarrak, zehatzak eta fidagarriak dira. Horrela, langileek ez dute datuen zuzentasunaz kezkatu behar; informazioa gardena eta errorerik gabea da.
+
+Erabilgarritasuna: Datuak une errealean eskuragarri daude. Horri esker, edozein unetan har daitezke neurri zuzentzaileak hezetasuna edo tenperatura doitzeko, uraren tratamendurako beharrezkoa den doitasun bera aplikatuz gure bulegoetan.
+
+Ekipoen babes teknologikoa
+Ura arazteko prozesuetan doitasuna behar dugun bezala, gure hardwarean ere segurtasun zorrotza aplikatzen dugu. Gailu bakoitzak babes-neurri espezifikoak ditu: erabiltzaile bakoitzak bere funtzioetarako beharrezkoak diren baimenak soilik ditu, faktore bikoitzeko autentifikazioa (2FA) erabiltzen dugu eta informazio sentikor guztia enkriptatuta dago.
+
+Sare-arkitektura eta segurtasun globala
+Gure sarearen diseinua isolamendu-geruzetan oinarritzen da, filtrazioak ekiditeko. Firewall indartsu baten bidez kanpoko mehatxuak blokeatzen ditugu, eta sarea VLAN desberdinetan segmentatu dugu; horrela, balizko eraso bat gertatuz gero, kutsadura isolatu egiten da (ur-zirkuitu estankoetan bezala), sare osora zabaldu ez dadin. Sistema honek sarbide ororen kontrol erabatekoa bermatzen digu.
+
+Araudia eta babeskopia-plana (Resilience)
+Gure konpromisoa erabatekoa da:
+
+Lege-betetzea: Gure sistema guztiek DBEO (RGPD) araudia zorrotz betetzen dute, erabiltzaileen pribatutasuna babestuz.
+
+Datuen babesa (3-2-1 Metodoa): Informazioaren jarraitutasuna ziurtatzeko, hiru kopia gordetzen ditugu euskarri desberdinetan: zerbitzarian, disko fisiko batean eta hodeian.
+
+Ondorioa: Edozein ezustekoren aurrean, gure datuak berreskuratzeko gaitasuna (erresilientzia) erabatekoa da, gure zerbitzuak etenik izan ez dezan.
+
 # Cluster
 ## Sortuta
 
