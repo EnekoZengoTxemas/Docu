@@ -330,3 +330,17 @@ Site Management: It checks if the site exists in the master list; if not, it add
 The Upsert: It uses a "duplicate key update" logic. If the script runs twice for the same hour, it won't create an error or a double entry; it simply updates the existing record with the most recent data.
 
 
+## Query MySQL to extract information that you want to show in the web:
+    SELECT * FROM site_hourly_stats WHERE site_hourly_stats.site_id = "The site you want to show" AND site_hourly_stats.rango_horario LIKE "The day you want to show%";
+
+
+### Docker sortu MondoDB:
+
+By moving your MongoDB setup from a localized Docker container to a networked Replica Set, you have transitioned from a volatile "sandbox" to a persistent, high-availability infrastructure. This configuration is used to ensure data durability and fault tolerance; if one container fails, the cluster automatically elects a new primary node to prevent downtime. Unlike a basic laboratory setup, your use of Docker Volumes ensures that data remains intact across container restarts, mimicking the stateful requirements of a professional production environment.
+
+Furthermore, by enabling external connectivity for tools like Compass, you have established a centralized data hub capable of remote administration and cross-machine integration. This allows for real-world testing of security protocols, such as Role-Based Access Control (RBAC) and network latency, which are often ignored in isolated labs. Essentially, you have used this cluster to build a secure, scalable, and observable database service that can support external applications while providing deep insights into the system's live performance and health.
+
+
+
+
+
