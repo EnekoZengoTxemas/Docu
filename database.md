@@ -29,7 +29,6 @@ Ph_Level: Shows the acidity/alkalinity of the liquid.
 ![](images/DataBase_MongoDB.png)
 
 
-
 ## Relational database data(MariaDB):
 The water_plants database is a relational system exported as a JSON structure, designed to manage industrial water monitoring infrastructure and telemetry. It is organized into three primary tables that maintain data integrity through specific relational rules and hierarchical constraints.
 
@@ -351,6 +350,230 @@ In contrast, the MongoDB script is scheduled daily at 12:30 AM. Because MongoDB 
 
 ![](images/Automatizacion.png)
 
+### Opendata MongoDB script:
+
+´´´JavaScript
+
+      const { MongoClient } = require('mongodb');
+    const fs = require('fs');
+    const path = require('path');
+
+    async function exportarDatosCrudosAyer() {
+    // 1. Configuración de conexión y rutas (Verifica estos datos)
+    const uri = "mongodb://localhost:27017"; 
+    const dbName = "water_plant"; // Ajusta según tu DB real
+    const collectionName = "data"; // Ajusta según tu colección real
+    const carpetaDestino = path.join(__dirname, 'descargas_datos_crudos');
+
+    // Crear la carpeta si no existe
+    if (!fs.existsSync(carpetaDestino)) {
+        fs.mkdirSync(carpetaDestino, { recursive: true });
+    }
+
+    const client = new MongoClient(uri);
+
+    try {
+        await client.connect();
+        const db = client.db(dbName);
+        const coleccion = db.collection(collectionName);
+
+        // 2. Calcular el rango de fechas (Ayer completo: 00:00:00 a 23:59:59)
+        const ahora = new Date();
+        
+        // Configuramos el inicio de ayer
+        const fechaInicio = new Date(ahora);
+        fechaInicio.setDate(ahora.getDate() -1);
+        fechaInicio.setHours(0, 0, 0, 0); // 00:00:00:000 de ayer
+
+        // Configuramos el fin de ayer
+        const fechaFin = new Date(ahora);
+        fechaFin.setDate(ahora.getDate() - 1);
+        fechaFin.setHours(23, 59, 59, 999); // 23:59:59:999 de ayer
+
+        console.log(`Iniciando exportación de datos crudos para el día: ${fechaInicio.toISOString().split('T')[0]}`);
+        console.log(`Rango: ${fechaInicio.toISOString()} - ${fechaFin.toISOString()}`);
+
+        // 3. Definir la consulta (Query) simple
+        // Buscamos documentos cuyo timestamp esté entre inicio y fin de ayer
+        const query = {
+            timestamp: { 
+                $gte: fechaInicio, 
+                $lte: fechaFin 
+            }
+        };
+
+        // 4. Ejecutar la consulta y obtener TODOS los documentos crudos
+        // Usamos .find() en lugar de .aggregate()
+        // También ordenamos por timestamp para que el archivo sea legible
+        console.log("Consultando base de datos...");
+        const datosCrudos = await coleccion.find(query).sort({ timestamp: 1 }).toArray();
+
+        // 5. Guardar en archivo con nombre dinámico
+        if (datosCrudos.length > 0) {
+            const fechaArchivo = fechaInicio.toISOString().split('T')[0];
+            const nombreArchivo = `datos_crudos_${fechaArchivo}.json`;
+            const rutaCompleta = path.join(carpetaDestino, nombreArchivo);
+
+            // Guardamos el array completo de documentos crudos
+            fs.writeFileSync(rutaCompleta, JSON.stringify(datosCrudos, null, 2));
+            console.log(`✅ Exportación exitosa: ${datosCrudos.length} documentos crudos guardados en ${rutaCompleta}`);
+        } else {
+            console.log("⚠️ No se encontraron datos crudos para el día especificado. No se creó el archivo.");
+        }
+
+    } catch (error) {
+        console.error("❌ Error durante la exportación:", error);
+    } finally {
+        await client.close();
+        console.log("Conexión a MongoDB cerrada.");
+    }
+    }
+  
+    // Ejecutar la función
+    exportarDatosCrudosAyer();
+
+´´´
+
+This script is an automated backup utility that captures every single raw data point from MongoDB recorded during the previous day. It identifies the 24-hour window for "yesterday" (from midnight to midnight), retrieves the full documents, and organizes them chronologically.
+
+Instead of sending this data to another database, it saves everything into a local JSON file within a specific folder. This allows you to keep a permanent, detailed archive of your sensor readings on your hard drive, which is useful for long-term storage or recovering data if the main database is ever cleared to save space.
+
+
+### Opendata MySql Script:
+
+´´´JavaScript
+
+    const { MongoClient } = require('mongodb');
+    const mysql = require('mysql2/promise');
+    const fs = require('fs');
+  
+    async function main() {
+    const mongoUri = "mongodb://localhost:27017";
+    const mongoClient = new MongoClient(mongoUri);
+
+    const mysqlConfig = {
+        host: 'localhost',
+        user: 'root',
+        password: 'Admin123',
+        database: 'water_plants'
+    };
+
+    try {
+        await mongoClient.connect();
+        const connection = await mysql.createConnection(mysqlConfig);
+        console.log("✅ Conexión establecida.");
+
+        // --- LÓGICA PARA UN DÍA COMPLETO (Ejemplo: Ayer) ---
+        const hoy = new Date();
+        const inicioDia = new Date(hoy);
+        inicioDia.setDate(hoy.getDate() - 1); // Restamos un día
+        inicioDia.setHours(0, 0, 0, 0);       // 00:00:00
+
+        const finDia = new Date(hoy);
+        finDia.setDate(hoy.getDate() - 1);
+        finDia.setHours(23, 59, 59, 999);    // 23:59:59
+
+        console.log(`📅 Procesando día completo: ${inicioDia.toLocaleDateString()}`);
+        console.log(`⏰ Rango: [${inicioDia.toISOString()}] a [${finDia.toISOString()}]`);
+
+        const database = mongoClient.db('water_plant');
+        const collection = database.collection('data');
+
+        const pipeline = [
+            {
+                // 1. Filtramos todos los documentos del día elegido
+                $match: {
+                    timestamp: { $gte: inicioDia, $lte: finDia }
+                }
+            },
+            {
+                // 2. AGRUPACIÓN POR HORA: 
+                // Al usar "%Y-%m-%d %H:00:00", todas las lecturas de 
+                // las 10:15, 10:30 y 10:55 se juntan en la "bolsa" de las 10:00
+                $group: {
+                    _id: {
+                        siteId: "$siteId",
+                        hora: { $dateToString: { format: "%Y-%m-%d %H:00:00", date: "$timestamp" } }
+                    },
+                    avgFlow: { $avg: "$flowRate_Lpm" },
+                    minFlow: { $min: "$flowRate_Lpm" },
+                    maxFlow: { $max: "$flowRate_Lpm" },
+                    avgPh: { $avg: "$phLevel" },
+                    minPh: { $min: "$phLevel" },
+                    maxPh: { $max: "$phLevel" },
+                    avgPre: { $avg: "$pressure_bar" },
+                    minPre: { $min: "$pressure_bar" },
+                    maxPre: { $max: "$pressure_bar" }
+                }
+            },
+            { 
+                // 3. Ordenamos cronológicamente (de 00:00 a 23:00)
+                $sort: { "_id.hora": 1, "_id.siteId": 1 } 
+            }
+        ];
+
+        const results = await collection.aggregate(pipeline).toArray();
+        console.log(`📊 Se han generado ${results.length} resúmenes horarios.`);
+
+        for (const doc of results) {
+            const v_site = doc._id.siteId;
+            const v_time = doc._id.hora;
+
+            // Asegurar que la planta existe
+            await connection.query('INSERT IGNORE INTO sites (site_id) VALUES (?)', [v_site]);
+
+            // Insertar datos en MySQL
+            const sql = `
+                INSERT INTO site_hourly_stats 
+                (rango_horario, site_id, flow_avg, flow_min, flow_max, ph_avg, ph_min, ph_max, pressure_avg, pressure_min, pressure_max) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                    flow_avg = VALUES(flow_avg), ph_avg = VALUES(ph_avg), pressure_avg = VALUES(pressure_avg)
+            `;
+
+            await connection.query(sql, [
+                v_time, v_site,
+                doc.avgFlow ? doc.avgFlow.toFixed(2) : 0, doc.minFlow, doc.maxFlow,
+                doc.avgPh ? doc.avgPh.toFixed(2) : 0, doc.minPh, doc.maxPh,
+                doc.avgPre ? doc.avgPre.toFixed(2) : 0, doc.minPre, doc.maxPre
+            ]);
+        }
+
+        // --- GENERAR INFORME JSON FINAL ---
+        const [rows] = await connection.query(
+            "SELECT * FROM site_hourly_stats WHERE rango_horario BETWEEN ? AND ? ORDER BY rango_horario ASC",
+            [inicioDia.toISOString().slice(0, 19).replace('T', ' '), finDia.toISOString().slice(0, 19).replace('T', ' ')]
+        );
+
+        fs.writeFileSync('./informe_diario_por_horas.json', JSON.stringify(rows, null, 2));
+        console.log("💾 Archivo 'informe_diario_por_horas.json' generado con éxito.");
+
+        await connection.end();
+    } catch (error) {
+        console.error("❌ Error:", error);
+    } finally {
+        await mongoClient.close();
+    }
+    }
+
+    main().catch(console.error);
+    ´´´
+
+1. High-Availability Infrastructure
+The system utilizes a MongoDB Replica Set deployed via Docker to ensure constant uptime and data redundancy. By integrating Docker Volumes, the architecture guarantees that data persists across container restarts, moving beyond a temporary test environment. Furthermore, the configuration enables external connectivity, allowing for secure remote administration and monitoring through tools like MongoDB Compass.
+
+2. Automated Data Intelligence (ETL)
+The core of the system is an automated ETL pipeline that manages data flow between MongoDB and MySQL. A specialized script filters millions of raw records into hourly summaries—calculating averages, minimums, and maximums—to transform high-volume sensor noise into actionable insights. This process is fully automated via the Task Scheduler, which coordinates hourly updates for MySQL and daily aggregations for MongoDB to optimize system performance.
+
+3. Resilience and Redundancy
+To ensure maximum reliability, the architecture employs an "Upsert" logic that maintains a single source of truth without duplicating records. The strategy also includes the automatic generation of JSON backup files. This ensures that the frontend remains functional and can continue to display the most recent data even in the event of a primary database failure.
+
+
+## Automatization of the scripts:
+
+<img width="537" height="197" alt="image" src="https://github.com/user-attachments/assets/bf37ff01-7fe1-4b72-8117-d53eb5fbb908" />
+
+We have automatizated both scripts to run every day. The MongoDB script runs at 12:30 and the MySql script runs at 15:00.
 
 
 
