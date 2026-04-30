@@ -88,5 +88,9 @@ db.data.aggregate([
       pressure_max: 1
     }}])
 
-  This query will be run every hour, because 
+  This query will be run every hour, because sensors often send data every few seconds, which can result in thousands of documents per hour. If you try to build a graph using a year’s worth of raw data, your application will likely crash or become extremely slow. By running this query every hour, you can save the summarized results into a separate collection.
+
+
+## 5 more query-s:
+
 
