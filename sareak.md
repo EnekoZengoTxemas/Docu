@@ -71,4 +71,6 @@ vtp mode client<br>
 
 Amaitzeko beharrezko ruta jarri dugu l3-an eta Router bat instalatu dugu Vlan10-ean. L3ko rutak horra ematen digu eta ruterren beste ruta bat jarri dugu ez duen ezagutzen sarea l3-ra eramareko.
 
-# 3. Sare Planoa eguneratu
+# 3. Sare Planoa eguneratu eta Sare Fisikoa
+
+Ikusi dugu ipv6 sare bat jartzen badugu ezin izango dugula konektatuko. Orduna ipv6 sarea ipv4 bihurtu dugu eta Vlan Bitratekaria kendu dugu. Horrela 4 Vlanekin geratuz. Ondoren L3 Switch moduan Mikrotik ruter bat jartzeaerabaki dugu eta beste bat ere bai mikrotikentzat VTP-protokolo desberdin bat jarriz. Horren ondoren TP-link ruter bat erabili dugu beste plantarentzat eta NAT-ekin jarri dugu.  
